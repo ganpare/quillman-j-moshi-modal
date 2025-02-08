@@ -202,9 +202,9 @@ const App = () => {
           <span className="text-sm font-medium text-gray-300 mr-2">
             Built with <a 
               className="underline" 
-              href="https://github.com/kyutai-labs/moshi" 
+              href="https://github.com/nu-dialogue/j-moshi" 
               target="_blank" rel="noopener noreferrer">
-                Moshi
+                J-Moshi
             </a> and
           </span>
           <img className="w-24" src="./modal-logo.svg" alt="Modal logo" />
@@ -279,10 +279,10 @@ const TextOutput = ({ warmupComplete, completedSentences, pendingSentence }) => 
     <div ref={containerRef} className="flex flex-col-reverse overflow-y-auto max-h-64 pr-2">
       {warmupComplete ? (
         allSentences.map((sentence, index) => (
-          <p key={index} className="text-gray-300 my-2">{sentence}</p>
+          <p key={index} className="text-gray-300 my-2 font-japanese">{sentence}</p>
         )).reverse()
       ) : (
-        <p className="text-gray-400 animate-pulse">Warming up model...</p>
+        <p className="text-gray-400 animate-pulse">モデルを準備中...</p>
       )}
     </div>
   );

@@ -6,7 +6,7 @@ import modal
 import asyncio
 import time
 
-from .common import app
+from .common import app, JMOSHI_DEFAULT_REPO, JMOSHI_MODEL_NAME, JMOSHI_MIMI_NAME, JMOSHI_TOKENIZER_NAME
 
 image = (
     modal.Image.debian_slim(python_version="3.11")
@@ -16,6 +16,9 @@ image = (
         "huggingface_hub==0.24.7",
         "hf_transfer==0.1.8",
         "sphn==0.1.4",
+        "torch",
+        "numpy",
+        "sentencepiece"
     )
     .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
 )
@@ -38,39 +41,42 @@ with image.imports():
 class Moshi:
     @modal.build()
     def download_model(self):
-        hf_hub_download(loaders.DEFAULT_REPO, loaders.MOSHI_NAME)
-        hf_hub_download(loaders.DEFAULT_REPO, loaders.MIMI_NAME)
-        hf_hub_download(loaders.DEFAULT_REPO, loaders.TEXT_TOKENIZER_NAME)
+        hf_hub_download(JMOSHI_DEFAULT_REPO, JMOSHI_MODEL_NAME)
+        hf_hub_download(JMOSHI_DEFAULT_REPO, JMOSHI_MIMI_NAME)
+        hf_hub_download(JMOSHI_DEFAULT_REPO, JMOSHI_TOKENIZER_NAME)
 
     @modal.enter()
     def enter(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        mimi_weight = hf_hub_download(loaders.DEFAULT_REPO, loaders.MIMI_NAME)
+        # Load Mimi model
+        mimi_weight = hf_hub_download(JMOSHI_DEFAULT_REPO, JMOSHI_MIMI_NAME)
         self.mimi = loaders.get_mimi(mimi_weight, device=self.device)
         self.mimi.set_num_codebooks(8)
         self.frame_size = int(self.mimi.sample_rate / self.mimi.frame_rate)
 
-        moshi_weight = hf_hub_download(loaders.DEFAULT_REPO, loaders.MOSHI_NAME)
+        # Load J-Moshi model
+        moshi_weight = hf_hub_download(JMOSHI_DEFAULT_REPO, JMOSHI_MODEL_NAME)
         self.moshi = loaders.get_moshi_lm(moshi_weight, device=self.device)
         self.lm_gen = LMGen(
             self.moshi,
-            # Sampling params
-            temp=0.8,
+            # Japanese language model parameters
+            temp=0.9,
             temp_text=0.8,
-            top_k=250,
-            top_k_text=25,
+            top_k=300,
+            top_k_text=50,
         )
 
         self.mimi.streaming_forever(1)
         self.lm_gen.streaming_forever(1)
 
+        # Load Japanese tokenizer
         tokenizer_config = hf_hub_download(
-            loaders.DEFAULT_REPO, loaders.TEXT_TOKENIZER_NAME
+            JMOSHI_DEFAULT_REPO, JMOSHI_TOKENIZER_NAME
         )
         self.text_tokenizer = sentencepiece.SentencePieceProcessor(tokenizer_config)
 
-        # Warmup them GPUs
+        # Warmup GPUs
         for chunk in range(4):
             chunk = torch.zeros(
                 1, 1, self.frame_size, dtype=torch.float32, device=self.device
