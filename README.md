@@ -4,17 +4,11 @@
 
 A voice chat system specifically designed for Japanese language. Enables streaming dialogue from voice to voice.
 
-The backend uses the [Moshi](https://github.com/nu-dialogue/j-moshi) model, which continuously listens to user utterances and generates responses at appropriate timings. Using the [Mimi](https://huggingface.co/kyutai/mimi) streaming encoder/decoder model, it maintains a seamless bidirectional voice stream, understanding conversation context to enable natural dialogue.
+The backend uses the J-Moshi model, which continuously listens to user utterances and generates responses at appropriate timings. Using the Mimi streaming encoder/decoder model, it maintains a seamless bidirectional voice stream, understanding conversation context to enable natural dialogue.
 
-With bidirectional WebSocket streaming and efficient voice compression using the [Opus audio codec](https://opus-codec.org/), it achieves natural response times close to human conversation in good internet environments.
-
-Try the demo [here](https://modal-labs--quillman-web.modal.run/).
-
-![J-Moshi](https://github.com/user-attachments/assets/afda5874-8509-4f56-9f25-d734b8f1c40a)
+With bidirectional WebSocket streaming and efficient voice compression using the Opus audio codec, it achieves natural response times close to human conversation in good internet environments.
 
 This repository aims to function as a starting point for language model-based application development and as a playground for experimentation. Contributions are welcome!
-
-[Note: This code is provided for demonstration purposes. Please check model licenses before commercial use.]
 
 ## File Structure
 
@@ -62,6 +56,8 @@ For frontend changes, you may need to clear your browser cache.
 
 ### Deploying to Modal
 
+The deployment procedure for this project references the implementation of modal-labs/quillman.
+
 Once you're satisfied with changes, [deploy](https://modal.com/docs/guide/managing-deployments#creating-deployments) the application:
 
 ```shell
@@ -71,3 +67,20 @@ modal deploy src.app
 This deploys both the frontend server and the Moshi WebSocket server.
 
 Note that keeping your deployed application in Modal incurs no costs! Modal applications are serverless and scale to zero when not in use.
+
+## Disclaimer
+
+This system is in a prototype stage, and the generated responses may be inaccurate or unnatural. Please use with caution as it may contain biases based on training data. The developers of this project are not responsible for any damages caused by the use of this system.
+
+## Acknowledgments
+
+This project references the following repositories:
+
+- J-Moshi (https://github.com/nu-dialogue/j-moshi) - The base model for the Japanese voice chat system
+- modal-labs/quillman (https://github.com/modal-labs/quillman) - Referenced for deployment and streaming implementation on Modal
+
+Thanks to all the original developers.
+
+## License
+
+This repository is licensed under CC BY-NC 4.0. Please note that commercial use is not permitted.
