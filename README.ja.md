@@ -2,13 +2,16 @@
 
 [English version here](./README.md)
 
-日本語に特化した音声対話システムです。音声から音声へのストリーミング対話を実現します。
+## Quillman + J-Moshi: 日本語音声対話システム on Modal
 
-バックエンドには J-Moshi モデルを使用しており、ユーザーの発話を継続的にリッスンし、適切なタイミングで応答を生成します。Mimi ストリーミングエンコーダー/デコーダーモデルを使用して途切れのない双方向の音声ストリームを維持し、会話の文脈を理解して自然な対話を実現します。
+本プロジェクトは、[modal-labs/quillman](https://github.com/modal-labs/quillman) をフォークし、日本語音声対話システム [J-Moshi](https://github.com/nu-dialogue/j-moshi) の方式を参考にカスタマイズしたものです。
 
-双方向WebSocketストリーミングと Opusオーディオコーデック による効率的な音声圧縮により、良好なインターネット環境下では人間の会話に近い自然なレスポンスタイムを実現しています。
+### ベースとなるリポジトリ:
+- ✅ **フォーク元:** [modal-labs/quillman](https://github.com/modal-labs/quillman)
+- ✅ **参考にしたリポジトリ:** [nu-dialogue/j-moshi](https://github.com/nu-dialogue/j-moshi)
 
-このリポジトリは、言語モデルベースのアプリケーション開発の出発点として、また実験のためのプレイグラウンドとして機能することを目的としています。貢献は歓迎されます！
+本リポジトリでは、日本語音声対話に最適化した環境を提供し、Modalを利用したデプロイを実現しています。
+
 
 
 ## ファイル構造
@@ -77,12 +80,12 @@ modal deploy src.app
 
 本プロジェクトは以下のリポジトリを参考にしています：
 
-- J-Moshi(https://github.com/nu-dialogue/j-moshi)日本語音声対話システムのベースとなるモデル
+- J-Moshi(https://github.com/nu-dialogue/j-moshi) 日本語音声対話システムのベースとなるモデル
 - modal-labs/quillman(https://github.com/modal-labs/quillman) - Modal上でのデプロイおよびストリーミング処理の実装を参考にしました
 
 オリジナルの開発者の皆様に感謝いたします。
 
-## ライセンス
-
-このリポジトリは CC BY-NC 4.0 のライセンスの下で公開されています。商用利用はできませんので、ご注意ください。
+## ライセンスと注意事項
+本プロジェクトは **MITライセンス** の下で公開されています。  
+ただし、使用している J-Moshi の学習済みモデル（Hugging Face の `nu-dialogue/j-moshi`）は **CC BY-NC 4.0** のライセンスが適用されており、**商用利用はできません**。 
 

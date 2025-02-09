@@ -2,13 +2,15 @@
 
 [日本語版はこちら](./README.ja.md)
 
-A voice chat system specifically designed for Japanese language. Enables streaming dialogue from voice to voice.
+## Quillman + J-Moshi: Japanese Voice Chat System on Modal
 
-The backend uses the J-Moshi model, which continuously listens to user utterances and generates responses at appropriate timings. Using the Mimi streaming encoder/decoder model, it maintains a seamless bidirectional voice stream, understanding conversation context to enable natural dialogue.
+This project is a fork of [modal-labs/quillman](https://github.com/modal-labs/quillman), customized based on the Japanese voice chat system [J-Moshi](https://github.com/nu-dialogue/j-moshi).
 
-With bidirectional WebSocket streaming and efficient voice compression using the Opus audio codec, it achieves natural response times close to human conversation in good internet environments.
+### Base Repositories:
+- ✅ **Forked from:** [modal-labs/quillman](https://github.com/modal-labs/quillman)
+- ✅ **Referenced:** [nu-dialogue/j-moshi](https://github.com/nu-dialogue/j-moshi)
 
-This repository aims to function as a starting point for language model-based application development and as a playground for experimentation. Contributions are welcome!
+This repository provides an environment optimized for Japanese voice chat, with deployment capabilities using Modal.
 
 ## File Structure
 
@@ -81,6 +83,6 @@ This project references the following repositories:
 
 Thanks to all the original developers.
 
-## License
-
-This repository is licensed under CC BY-NC 4.0. Please note that commercial use is not permitted.
+## License and Notes
+This project is released under the **MIT License**.  
+However, the J-Moshi trained model used (Hugging Face's `nu-dialogue/j-moshi`) is licensed under **CC BY-NC 4.0** and **cannot be used for commercial purposes**.
