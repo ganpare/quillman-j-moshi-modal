@@ -8,17 +8,22 @@ import time
 
 from .common import app, JMOSHI_DEFAULT_REPO, JMOSHI_MODEL_NAME, JMOSHI_MIMI_NAME, JMOSHI_TOKENIZER_NAME
 
+# Modalイメージの設定：クラウド環境用の依存関係
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .pip_install(
+        # モデル推論に必要なパッケージ
         "moshi==0.1.0",
-        "fastapi==0.115.5",
-        "huggingface_hub==0.24.7",
-        "hf_transfer==0.1.8",
-        "sphn==0.1.4",
         "torch",
         "numpy",
-        "sentencepiece"
+        "sentencepiece",
+        # API関連パッケージ
+        "fastapi==0.115.5",
+        # モデルダウンロード用パッケージ
+        "huggingface_hub==0.24.7",
+        "hf_transfer==0.1.8",
+        # 音声処理パッケージ
+        "sphn==0.1.4",
     )
     .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
 )

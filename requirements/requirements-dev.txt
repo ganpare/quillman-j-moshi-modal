@@ -1,5 +1,12 @@
 -r requirements.txt
-sounddevice
-numpy
-sphn
-aiohttp
+# Testing dependencies
+sounddevice  # Audio I/O test
+numpy        # Numerical computation
+sphn         # Audio processing
+aiohttp      # WebSocket test
+
+# Development tools
+black        # Code formatter
+isort        # Import sorter
+flake8       # Linter
+pytest       # Test framework
