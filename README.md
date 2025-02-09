@@ -43,23 +43,6 @@ The terminal output will show the URL for WebSocket connection.
 
 While the `modal serve` process is running, changes to project files are automatically applied. Use `Ctrl+C` to stop the app.
 
-### Testing WebSocket Connection
-From another terminal, you can test the WebSocket connection directly from the command line using the `tests/moshi_client.py` client.
-
-It requires non-standard dependencies, which can be installed with:
-```shell
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements/requirements-dev.txt
-```
-
-Once dependencies are installed, run the terminal client with:
-```shell
-python tests/moshi_client.py
-```
-
-Make sure your microphone and speakers are enabled, and start talking!
-
 ### HTTP Server and Frontend Development
 
 The HTTP server in `src/app.py` is a second [FastAPI](https://fastapi.tiangolo.com/) application that serves the frontend as static files.

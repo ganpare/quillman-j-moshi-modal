@@ -43,23 +43,6 @@ modal serve src.moshi
 
 `modal serve`プロセスが実行中の間、プロジェクトファイルへの変更は自動的に適用されます。`Ctrl+C`でアプリを停止できます。
 
-### WebSocket接続のテスト
-別のターミナルから、`tests/moshi_client.py`クライアントを使用してWebSocket接続を直接コマンドラインでテストできます。
-
-標準以外の依存関係が必要で、以下のコマンドでインストールできます：
-```shell
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements/requirements-dev.txt
-```
-
-依存関係をインストールしたら、以下のコマンドでターミナルクライアントを実行します：
-```shell
-python tests/moshi_client.py
-```
-
-マイクとスピーカーが有効になっていることを確認して、話し始めてください！
-
 ### HTTPサーバーとフロントエンドの開発
 
 `src/app.py`のHTTPサーバーは、フロントエンドを静的ファイルとして提供する2つ目の[FastAPI](https://fastapi.tiangolo.com/)アプリケーションです。
