@@ -1,134 +1,59 @@
-# QuillMan コード解析サマリー
+# コードの概要
 
-## 1. プロジェクト構成
+## アーキテクチャ
 
-### ディレクトリ構造
-src/ ├── app.py # フロントエンドの静的ファイル配信用FastAPIサーバー ├── common.py # 共通のModal Appインスタンス定義 ├── moshi.py # Moshi音声対話モデルのwebsocketサーバー └── frontend/ # フロントエンドのReactアプリケーション ├── app.jsx # メインのReactコンポーネント └── index.html # エントリーポイントHTML
+J-Moshiは以下の主要コンポーネントで構成されています：
 
+1. **Moshiモデル** (`src/moshi.py`)
+   - 音声認識、対話生成、音声合成を1つのモデルで処理
+   - ユーザーごとに独立したGPUインスタンスで実行
+   - WebSocketを介したストリーミング通信
 
-## 2. バックエンド実装
+2. **WebSocketサーバー** (`src/moshi.py`)
+   - FastAPIベースのWebSocketエンドポイント
+   - バイナリOpus音声データの双方向ストリーミング
+   - モデルの状態管理とセッション分離
 
-### common.py
-- `modal.App`インスタンスを作成し、"quillman"という名前で設定
-- 他のモジュールで共有される中心的なAppインスタンスを提供
+3. **フロントエンドアプリ** (`src/frontend/`)
+   - ReactベースのSPA
+   - Web Audio APIによる音声録音/再生
+   - Opus codec統合によるデータ圧縮
 
-### moshi.py
-主要なバックエンド実装を含むモジュール
+4. **HTTPサーバー** (`src/app.py`)
+   - 静的フロントエンドファイルの配信
+   - CORSミドルウェア設定
+   - 開発/本番環境の統一的な提供
 
-#### 環境設定
-- Modal Image設定
-  - Python 3.11のDebian Slim
-  - 必要なパッケージ: moshi, fastapi, huggingface_hub, hf_transfer, sphn
-  - HuggingFace転送の有効化
+## データフロー
 
-#### Moshiクラス
-- GPUインスタンス管理と音声対話処理を担当
-- デコレータ:
-  - `@app.cls`: A10G GPU使用、300秒のアイドルタイムアウト
-  - `@modal.build`: モデルのダウンロード
-  - `@modal.enter`: モデルの初期化とGPUウォームアップ
+1. クライアント側：
+   - マイク入力をOpusでエンコード
+   - WebSocket経由でサーバーに送信
+   - 受信した音声データをデコードして再生
 
-主要なメソッド：
-1. `download_model()`: 必要なモデルファイルをダウンロード
-2. `enter()`: 
-   - GPUデバイスの設定
-   - Mimiモデルの初期化（音声エンコーダー/デコーダー）
-   - Moshiモデルの初期化（言語モデル）
-   - テキストトークナイザーの設定
-   - GPUのウォームアップ処理
-3. `reset_state()`: 
-   - Opusストリームの初期化
-   - チャット履歴のリセット
-4. `web()`: WebSocket通信を処理するFastAPIアプリケーション
+2. サーバー側：
+   - 受信したOpusデータをデコード
+   - モデルで処理して応答を生成
+   - 生成した音声をOpusでエンコード
+   - WebSocket経由でクライアントに送信
 
-WebSocket処理の特徴：
-- 3つの非同期ループを使用:
-  1. `recv_loop()`: クライアントからの音声データ受信
-  2. `inference_loop()`: 音声認識と応答生成
-  3. `send_loop()`: 生成された音声の送信
-- 双方向リアルタイム通信の実現
-- Opusフォーマットによる効率的な音声データ転送
+## 主要ファイル
 
-### app.py
-フロントエンド配信用のFastAPIサーバー
+- `src/moshi.py`: モデルとWebSocketサーバーの実装
+- `src/app.py`: HTTPサーバーとフロントエンド配信
+- `src/frontend/app.jsx`: フロントエンドアプリのメイン
+- `src/frontend/index.html`: フロントエンドのエントリーポイント
 
-特徴：
-- 静的ファイルの配信設定
-- CORSミドルウェアの設定
-- キャッシュ無効化の実装
-- 同時接続100までの対応
+## 依存関係
 
-## 3. フロントエンド実装
+- Python側：
+  - modal: サーバーレスデプロイメント
+  - fastapi: WebAPIフレームワーク
+  - pytorch: 機械学習フレームワーク
+  - transformers: モデルインターフェース
 
-### index.html
-- 必要なライブラリの読み込み:
-  - React
-  - TailwindCSS
-  - Opus関連（録音・デコード用）
-- カスタムカラーテーマの設定
-
-### app.jsx
-Reactを使用したSPAの実装
-
-#### 主要コンポーネント
-1. `App`: メインコンポーネント
-   - 状態管理: マイク入力、音声再生、WebSocket接続
-   - 音声処理の初期化と管理
-   - UIレイアウトの構成
-
-2. `AudioControl`: マイク制御UI
-   - 音声入力の可視化
-   - ミュート機能の提供
-
-3. `TextOutput`: テキスト出力表示
-   - 音声認識結果の表示
-   - 自動スクロール機能
-
-#### 主要機能
-1. 音声入力処理:
-   - OpusRecorderを使用したマイク録音
-   - リアルタイム音量表示
-   - 録音ゲイン制御
-
-2. 音声出力処理:
-   - Opus形式の音声データをPCMにデコード
-   - Web Audio APIによるシームレスな音声再生
-   - バッファリングによる途切れのない再生
-
-3. WebSocket通信:
-   - バイナリデータの送受信
-   - 音声データとテキストデータの分離処理
-   - 接続状態の管理
-
-## 4. 外部依存関係
-
-### Python パッケージ
-- modal: サーバーレスコンピューティング基盤
-- fastapi: Webアプリケーションフレームワーク
-- moshi: 音声対話モデル
-- huggingface_hub: モデルファイル管理
-- sphn: 音声処理ユーティリティ
-- torch: 深層学習フレームワーク
-- sentencepiece: テキストトークナイザー
-
-### JavaScript ライブラリ
-- React: UIフレームワーク
-- Opus Recorder: 音声録音・エンコード
-- Ogg Opus Decoder: 音声デコード
-- TailwindCSS: スタイリング
-
-## 5. 重要なデータ構造
-
-### 音声データフロー
-1. クライアント側:
-マイク入力 → PCM → Opus エンコード → WebSocket → サーバー
-
-
-2. サーバー側:
-Opus → PCM → Mimi エンコード → Moshi 処理 → Mimi デコード → Opus → WebSocket → クライアント
-
-
-### モデル状態管理
-- チャット履歴: LMGenクラスで管理
-- 音声バッファ: OpusStream形式で管理
-- セッション状態: WebSocketコネクションごとに初期化
+- フロントエンド側：
+  - React: UIフレームワーク
+  - opus-recorder: 音声エンコーディング
+  - ogg-opus-decoder: 音声デコーディング
+  - Web Audio API: 音声の録音/再生

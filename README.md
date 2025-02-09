@@ -1,48 +1,50 @@
-# QuiLLMan: Voice Chat with Moshi
+# J-Moshi: Japanese Voice Chat System
 
-A complete voice chat app powered by a speech-to-speech language model and bidirectional streaming.
+[日本語版はこちら](./README.ja.md)
 
-On the backend is Kyutai Lab's [Moshi](https://github.com/kyutai-labs/moshi) model, which will continuously listen, plan, and respond to the user. It uses the [Mimi](https://huggingface.co/kyutai/mimi) streaming encoder/decoder model to maintain an unbroken stream of audio in and out, and a [speech-text foundation model](https://huggingface.co/kyutai/moshiko-pytorch-bf16) to determine when and how to respond.
+A voice chat system specifically designed for Japanese language. Enables streaming dialogue from voice to voice.
 
-Thanks to bidirectional websocket streaming and use of the [Opus audio codec](https://opus-codec.org/) for compressing audio across the network, response times on good internet can be nearly instantaneous, closely matching the cadence of human speech.
+The backend uses the [Moshi](https://github.com/nu-dialogue/j-moshi) model, which continuously listens to user utterances and generates responses at appropriate timings. Using the [Mimi](https://huggingface.co/kyutai/mimi) streaming encoder/decoder model, it maintains a seamless bidirectional voice stream, understanding conversation context to enable natural dialogue.
 
-You can find the demo live [here](https://modal-labs--quillman-web.modal.run/).
+With bidirectional WebSocket streaming and efficient voice compression using the [Opus audio codec](https://opus-codec.org/), it achieves natural response times close to human conversation in good internet environments.
 
-![Quillman](https://github.com/user-attachments/assets/afda5874-8509-4f56-9f25-d734b8f1c40a)
+Try the demo [here](https://modal-labs--quillman-web.modal.run/).
 
-This repo is meant to serve as a starting point for your own language model-based apps, as well as a playground for experimentation. Contributions are welcome and encouraged!
+![J-Moshi](https://github.com/user-attachments/assets/afda5874-8509-4f56-9f25-d734b8f1c40a)
 
-[Note: this code is provided for illustration only; please remember to check the license before using any model for commercial purposes.]
+This repository aims to function as a starting point for language model-based application development and as a playground for experimentation. Contributions are welcome!
 
-## File structure
+[Note: This code is provided for demonstration purposes. Please check model licenses before commercial use.]
 
-1. React frontend ([`src/frontend/`](./src/frontend/)), served by [`src/app.py`](./src/app.py)
-2. Moshi websocket server ([`src/moshi.py`](./src/moshi.py))
+## File Structure
 
-## Developing locally
+1. React Frontend ([`src/frontend/`](./src/frontend/)) - Served by [`src/app.py`](./src/app.py)
+2. Moshi WebSocket Server ([`src/moshi.py`](./src/moshi.py))
 
-### Requirements
+## Local Development
 
-- `modal` installed in your current Python virtual environment (`pip install modal`)
-- A [Modal](http://modal.com/) account (`modal setup`)
-- A Modal token set up in your environment (`modal token new`)
+### Prerequisites
 
-### Developing the inference module
+- Python virtual environment with `modal` installed (`pip install modal`)
+- [Modal](http://modal.com/) account (set up with `modal setup`)
+- Modal token set in environment (`modal token new` to generate)
 
-The Moshi server is a [Modal class](https://modal.com/docs/reference/modal.Cls#modalcls) module to load the models and maintain streaming state, with a [FastAPI](https://fastapi.tiangolo.com/) http server to expose a websocket interface over the internet.
+### Inference Module Development
 
-To run a [development server]((https://modal.com/docs/guide/webhooks#developing-with-modal-serve)) for the Moshi module, run this command from the root of the repo.
+The Moshi server is implemented as a [Modal class](https://modal.com/docs/reference/modal.Cls#modalcls) module that loads the model and maintains streaming state. It exposes a WebSocket interface through a [FastAPI](https://fastapi.tiangolo.com/) HTTP server over the internet.
+
+To start the Moshi module's [development server](https://modal.com/docs/guide/webhooks#developing-with-modal-serve), run the following command from the repository root:
 
 ```shell
 modal serve src.moshi
 ```
 
-In the terminal output, you'll find a URL for creating a websocket connection.
+The terminal output will show the URL for WebSocket connection.
 
-While the `modal serve` process is running, changes to any of the project files will be automatically applied. `Ctrl+C` will stop the app. 
+While the `modal serve` process is running, changes to project files are automatically applied. Use `Ctrl+C` to stop the app.
 
-### Testing the websocket connection
-From a seperate terminal, we can test the websocket connection directly from the command line with the `tests/moshi_client.py` client.
+### Testing WebSocket Connection
+From another terminal, you can test the WebSocket connection directly from the command line using the `tests/moshi_client.py` client.
 
 It requires non-standard dependencies, which can be installed with:
 ```shell
@@ -51,38 +53,38 @@ source venv/bin/activate
 pip install -r requirements/requirements-dev.txt
 ```
 
-With dependencies installed, run the terminal client with:
+Once dependencies are installed, run the terminal client with:
 ```shell
 python tests/moshi_client.py
 ```
 
-And begin speaking! Be sure to have your microphone and speakers enabled.
+Make sure your microphone and speakers are enabled, and start talking!
 
-### Developing the http server and frontend
+### HTTP Server and Frontend Development
 
-The http server at `src/app.py` is a second [FastAPI](https://fastapi.tiangolo.com/) app, for serving the frontend as static files.
+The HTTP server in `src/app.py` is a second [FastAPI](https://fastapi.tiangolo.com/) application that serves the frontend as static files.
 
-A [development server]((https://modal.com/docs/guide/webhooks#developing-with-modal-serve)) can be run with:
+You can start the [development server](https://modal.com/docs/guide/webhooks#developing-with-modal-serve) with:
 
 ```shell
 modal serve src.app
 ```
 
-Since `src/app.py` imports the `src/moshi.py` module, this also starts the Moshi websocket server.
+Since `src/app.py` imports the `src/moshi.py` module, this also starts the Moshi WebSocket server.
 
-In the terminal output, you'll find a URL that you can visit to use your app. 
-While the `modal serve` process is running, changes to any of the project files will be automatically applied. `Ctrl+C` will stop the app. 
+The terminal output will show the URL to access the application.
+While the `modal serve` process is running, changes to project files are automatically applied. Use `Ctrl+C` to stop the app.
 
-Note that for frontend changes, the browser cache may need to be cleared.
+For frontend changes, you may need to clear your browser cache.
 
 ### Deploying to Modal
 
-Once you're happy with your changes, [deploy](https://modal.com/docs/guide/managing-deployments#creating-deployments) your app:
+Once you're satisfied with changes, [deploy](https://modal.com/docs/guide/managing-deployments#creating-deployments) the application:
 
 ```shell
 modal deploy src.app
 ```
 
-This will deploy both the frontend server and the Moshi websocket server.
+This deploys both the frontend server and the Moshi WebSocket server.
 
-Note that leaving the app deployed on Modal doesn't cost you anything! Modal apps are serverless and scale to 0 when not in use.
+Note that keeping your deployed application in Modal incurs no costs! Modal applications are serverless and scale to zero when not in use.

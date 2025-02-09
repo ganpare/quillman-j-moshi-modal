@@ -1,55 +1,55 @@
-# QuiLLMan: Voice Chat with Moshi
+# J-Moshi: 日本語音声対話システム
 
-[QuiLLMan](https://github.com/modal-labs/quillman) is a complete voice chat application built on Modal: you speak and the chatbot speaks back!
+[J-Moshi](https://github.com/nu-dialogue/j-moshi)は、Modalを使用して構築された完全な日本語音声対話アプリケーションです。あなたが話しかけると、AIがリアルタイムで応答します！
 
-At the core is Kyutai Lab's [Moshi](https://github.com/kyutai-labs/moshi) model, a speech-to-speech language model that will continuously listen, plan, and respond to the user.
+核となるのは、[J-Moshi](https://github.com/nu-dialogue/j-moshi)モデルです。このモデルは継続的にユーザーの発話を聞き、応答を計画し、自然な対話を実現します。
 
-Thanks to bidirectional websocket streaming and [Opus audio compression](https://opus-codec.org/), response times on good internet can be nearly instantaneous, closely matching the cadence of human speech.
+双方向WebSocketストリーミングと[Opusオーディオ圧縮](https://opus-codec.org/)のおかげで、良好なインターネット環境では人間の会話に近い応答性を実現しています。
 
-You can find the demo live [here](https://modal-labs--quillman-web.modal.run/).
+デモは[こちら](https://modal-labs--quillman-web.modal.run/)でご覧いただけます。
 
-![Quillman](https://github.com/user-attachments/assets/afda5874-8509-4f56-9f25-d734b8f1c40a)
+![J-Moshi](https://github.com/user-attachments/assets/afda5874-8509-4f56-9f25-d734b8f1c40a)
 
-Everything — from the React frontend to the model backend — is deployed serverlessly on Modal, allowing it to automatically scale and ensuring you only pay for the compute you use.
+フロントエンドからモデルのバックエンドまで、すべてがModalでサーバーレスにデプロイされており、自動的にスケールし、使用したコンピュートリソースに対してのみ課金されます。
 
-This page provides a high-level walkthrough of the [GitHub repo](https://github.com/modal-labs/quillman).
+このページでは、[GitHubリポジトリ](https://github.com/nu-dialogue/j-moshi)のハイレベルな概要を説明します。
 
-## Code overview
+## コードの概要
 
-Traditionally, building a bidirectional streaming web application as compute-heavy as QuiLLMan would take a lot of work, and it's especially difficult to make it robust and scale to handle many concurrent users.
+従来、J-Moshiのような双方向ストリーミングWebアプリケーションの構築には多大な労力が必要で、特に複数の同時ユーザーを処理し、堅牢でスケーラブルにすることは困難でした。
 
-But with Modal, it’s as simple as writing two different classes and running a CLI command.
+しかしModalを使用すると、2つのクラスを書いてCLIコマンドを実行するだけで実現できます。
 
-Our project structure looks like this:
+プロジェクト構造は以下の通りです：
 
-1. [Moshi Websocket Server](https://modal.com/docs/examples/llm-voice-chat#moshi-websocket-server): loads an instance of the Moshi model and maintains a bidirectional websocket connection with the client.
-2. [React Frontend](https://modal.com/docs/examples/llm-voice-chat#react-frontend): runs client-side interaction logic.
+1. [Moshi WebSocketサーバー](https://modal.com/docs/examples/llm-voice-chat#moshi-websocket-server): Moshiモデルのインスタンスをロードし、クライアントとの双方向WebSocket接続を維持します。
+2. [Reactフロントエンド](https://modal.com/docs/examples/llm-voice-chat#react-frontend): クライアントサイドのインタラクションロジックを実行します。
 
-Let’s go through each of these components in more detail.
+それぞれのコンポーネントについて詳しく見ていきましょう。
 
-### FastAPI Server
+### FastAPIサーバー
 
-Both frontend and backend are served via a [FastAPI Server](https://fastapi.tiangolo.com/), which is a popular Python web framework for building REST APIs.
+フロントエンドとバックエンドの両方が[FastAPIサーバー](https://fastapi.tiangolo.com/)を通じて提供されます。これは、REST APIを構築するための人気のあるPythonウェブフレームワークです。
 
-On Modal, a function or class method can be exposed as a web endpoint by decorating it with [`@app.asgi_app()`](https://modal.com/docs/reference/modal.asgi_app#modalasgi_app) and returning a FastAPI app. You're then free to configure the FastAPI server however you like, including adding middleware, serving static files, and running websockets.
+Modalでは、関数やクラスメソッドに[`@app.asgi_app()`](https://modal.com/docs/reference/modal.asgi_app#modalasgi_app)デコレータを付けてFastAPIアプリを返すことで、ウェブエンドポイントとして公開できます。ミドルウェアの追加、静的ファイルの提供、WebSocketの実行など、FastAPIサーバーを自由に設定できます。
 
-### Moshi Websocket Server
+### Moshi WebSocketサーバー
 
-Traditionally, a speech-to-speech chat app requires three distinct modules: speech-to-text, text-to-text, and text-to-speech. Passing data between these modules introduces bottlenecks, and can limit the speed of the app and forces a turn-by-turn conversation which can feel unnatural.
+従来の音声対話アプリでは、音声認識、テキスト変換、音声合成という3つの異なるモジュールが必要でした。これらのモジュール間のデータ受け渡しがボトルネックとなり、アプリケーションの速度を制限し、不自然な順番待ち会話を強いられていました。
 
-Kyutai Lab's [Moshi](https://github.com/kyutai-labs/moshi) bundles all modalities into one model, which decreases latency and makes for a much simpler app.
+[J-Moshi](https://github.com/nu-dialogue/j-moshi)はすべてのモダリティを1つのモデルにバンドルすることで、レイテンシーを削減し、アプリケーションをシンプルにしています。
 
-Under the hood, Moshi uses the [Mimi](https://huggingface.co/kyutai/mimi) streaming encoder/decoder model to maintain an unbroken stream of audio in and out. The encoded audio is processed by a [speech-text foundation model](https://huggingface.co/kyutai/moshiko-pytorch-bf16), which uses an internal monologue to determine when and how to respond.
+内部では、[Mimi](https://huggingface.co/kyutai/mimi)ストリーミングエンコーダー/デコーダーモデルを使用して途切れのない音声の入出力ストリームを維持しています。エンコードされた音声は[音声-テキスト基盤モデル](https://huggingface.co/kyutai/moshiko-pytorch-bf16)で処理され、内部モノローグを使用して応答のタイミングと内容を決定します。
 
-Using a streaming model introduces a few challenges not normally seen in inference backends:
+ストリーミングモデルの使用には、通常の推論バックエンドでは見られない以下のような課題があります：
 
-1. The model is _stateful_, meaning it maintains context of the conversation so far. This means a model instance cannot be shared between user conversations, so we must run a unique GPU per user session, which is normally not an easy feat!
-2. The model is _streaming_, so the interface around it is not as simple as a POST request. We must find a way to stream audio data in and out, and do it fast enough for seamless playback.
+1. モデルには_状態_があり、これまでの会話の文脈を維持します。これは、モデルインスタンスをユーザーセッション間で共有できないことを意味し、ユーザーセッションごとに固有のGPUを実行する必要があります。これは通常、簡単なことではありません！
+2. モデルは_ストリーミング_なので、インターフェースは単純なPOSTリクエストのようにはいきません。音声データを双方向にストリーミングし、シームレスな再生のために十分な速度で処理する必要があります。
 
-We solve both of these in `src/moshi.py`, using a few Modal features.
+これらの課題は`src/moshi.py`で、いくつかのModal機能を使用して解決しています。
 
-To solve statefulness, we just spin up a new GPU per concurrent user.
-That's easy with Modal!
+状態の問題は、同時ユーザーごとに新しいGPUをスピンアップすることで解決します。
+Modalではこれが簡単です！
 
 ```python
 @app.cls(
@@ -62,11 +62,11 @@ class Moshi:
     # ...
 ```
 
-With this setting, if a new user connects, a new GPU instance is created! When any user disconnects, the state of their model is reset and that GPU instance is returned to the warm pool for re-use (for up to 300 seconds). Be aware that a GPU per user is not going to be cheap, but it's the simplest way to ensure user sessions are isolated.
+この設定により、新しいユーザーが接続すると、新しいGPUインスタンスが作成されます！ユーザーが切断すると、そのモデルの状態がリセットされ、GPUインスタンスは再利用のためのウォームプールに返されます（最大300秒間）。ユーザーごとにGPUを使用するのはコストがかかることに注意してください。しかし、これがユーザーセッションを確実に分離する最もシンプルな方法です。
 
-For streaming, we use FastAPI's support for bidirectional websockets. This allows clients to establish a single connection at the start of their session, and stream audio data both ways.
+ストリーミングについては、FastAPIの双方向WebSocketサポートを使用しています。これにより、クライアントはセッション開始時に単一の接続を確立し、双方向に音声データをストリーミングできます。
 
-Just as a FastAPI server can run from a Modal function, it can also be attached to a Modal class method, allowing us to couple a prewarmed Moshi model to a websocket session.
+FastAPIサーバーがModalの関数から実行できるのと同様に、Modalのクラスメソッドにも接続できます。これにより、事前にウォームアップされたMoshiモデルをWebSocketセッションに結合できます。
 
 ```python
     @modal.asgi_app()
@@ -79,53 +79,53 @@ Just as a FastAPI server can run from a Modal function, it can also be attached 
             with torch.no_grad():
                 await ws.accept()
 
-                # handle user session
+                # ユーザーセッションの処理
 
-                # spawn loops for async IO
+                # 非同期I/O用のループを生成
                 async def recv_loop():
                     while True:
                         data = await ws.receive_bytes()
-                        # send data into inference stream...
+                        # データを推論ストリームに送信...
 
                 async def send_loop():
                     while True:
                         await asyncio.sleep(0.001)
                         msg = self.opus_stream_outbound.read_bytes()
-                        # send inference output to user ...
+                        # 推論出力をユーザーに送信...
 ```
 
-To run a [development server](https://modal.com/docs/guide/webhooks#developing-with-modal-serve) for the Moshi module, run this command from the root of the repo.
+Moshiモジュールの[開発サーバー](https://modal.com/docs/guide/webhooks#developing-with-modal-serve)を実行するには、リポジトリのルートで以下のコマンドを実行します。
 
 ```shell
 modal serve src.moshi
 ```
 
-In the terminal output, you'll find a URL for creating a websocket connection.
+ターミナル出力にWebSocket接続用のURLが表示されます。
 
-### React Frontend
+### Reactフロントエンド
 
-The frontend is a static React app, found in the `src/frontend` directory and served by `src/app.py`.
+フロントエンドは`src/frontend`ディレクトリにある静的なReactアプリで、`src/app.py`で提供されています。
 
-We use the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) to record audio from the user's microphone and playback audio responses from the model.
+[Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)を使用してユーザーのマイクから音声を録音し、モデルからの音声応答を再生します。
 
-For efficient audio transmission, we use the [Opus codec](https://opus-codec.org/) to compress audio across the network. Opus recording and playback are supported by the [`opus-recorder`](https://github.com/chris-rudmin/opus-recorder) and [`ogg-opus-decoder`](https://github.com/eshaz/wasm-audio-decoders/tree/master/src/ogg-opus-decoder) libraries.
+効率的な音声伝送のために、[Opusコーデック](https://opus-codec.org/)を使用してネットワーク経由で音声を圧縮します。Opusの録音と再生は[`opus-recorder`](https://github.com/chris-rudmin/opus-recorder)と[`ogg-opus-decoder`](https://github.com/eshaz/wasm-audio-decoders/tree/master/src/ogg-opus-decoder)ライブラリでサポートされています。
 
-To serve the frontend assets, run this command from the root of the repo.
+フロントエンドアセットを提供するには、リポジトリのルートで以下のコマンドを実行します：
 
 ```shell
 modal serve src.app
 ```
 
-Since `src/app.py` imports the `src/moshi.py` module, this `serve` command also serves the Moshi websocket server as its own endpoint.
+`src/app.py`は`src/moshi.py`モジュールをインポートするため、この`serve`コマンドはMoshi WebSocketサーバーも独自のエンドポイントとして提供します。
 
-## Deploy
+## デプロイ
 
-When you're ready to go live, use the `deploy` command to deploy the app to Modal.
+準備が整ったら、`deploy`コマンドを使用してアプリケーションをModalにデプロイします。
 
 ```shell
 modal deploy src.app
 ```
 
-## Steal this example
+## このコードを活用する
 
-The code for this entire example is [available on GitHub](https://github.com/modal-labs/quillman), so feel free to fork it and make it your own!
+このサンプル全体のコードは[GitHubで公開](https://github.com/nu-dialogue/j-moshi)されています。フォークして自由にカスタマイズしてください！
